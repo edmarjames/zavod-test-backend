@@ -1,4 +1,5 @@
 from django.db import models
+from cloudinary.models import CloudinaryField
 
 # Create your models here.
 class Tag(models.Model):
@@ -12,6 +13,7 @@ class News(models.Model):
     title = models.CharField(max_length=255)
     text = models.TextField()
     tags = models.ManyToManyField("Tag")
+    image = CloudinaryField("image")
     likes = models.IntegerField(default=0)
     dislikes = models.IntegerField(default=0)
     date_created = models.DateTimeField(auto_now_add=True)
