@@ -26,7 +26,7 @@ class News(models.Model):
         return self.title
 
 class NewsView(models.Model):
-    news = models.ForeignKey(News, on_delete=models.CASCADE, related_name="views"),
+    news = models.ForeignKey(News, on_delete=models.CASCADE, related_name="views")
     timestamp = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

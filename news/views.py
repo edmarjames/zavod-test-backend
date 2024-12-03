@@ -10,7 +10,8 @@ from .serializers import (
     NewsViewSerializer
 )
 from .models import (
-    News
+    News,
+    NewsView
 )
 
 
@@ -68,7 +69,7 @@ def news(request):
         }, status=status.HTTP_200_OK)
 
 
-@api_view(["GET", "DELETE"])
+@api_view(["GET", "DELETE", "PATCH"])
 def news_by_id(request, pk):
 
     try:
@@ -82,10 +83,14 @@ def news_by_id(request, pk):
     if request.method == "GET":
         serializer = NewsSerializer(news)
 
+        if news:
+            NewsView.objects.create(news=news)
+
         return Response({
             "message": "Data successfully retrieved",
             "data": serializer.data
         }, status=status.HTTP_200_OK)
+
 
     elif request.method == "DELETE":
         news.delete()
@@ -93,3 +98,28 @@ def news_by_id(request, pk):
         return Response({
             "message": "News deleted successfully"
         }, status=status.HTTP_204_NO_CONTENT)
+
+    elif request.method == "PATCH":
+        action = request.query_params.get("action")
+
+        if action == "like":
+            news.likes += 1
+            news.save()
+
+            return Response({
+                "message": "News liked successfully",
+                "data": NewsSerializer(news).data
+            }, status=status.HTTP_200_OK)
+
+        elif action == "dislike":
+            news.dislikes += 1
+            news.save()
+            return Response({
+                "message": "News disliked successfully",
+                "data": NewsSerializer(news).data
+            }, status=status.HTTP_200_OK)
+
+        else:
+            return Response({
+                "message": "Invalid action, please use 'like' or 'dislike'",
+            }, status=status.HTTP_400_BAD_REQUEST)
