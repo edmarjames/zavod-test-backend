@@ -1,18 +1,12 @@
 from django.contrib.auth import authenticate
-from django.contrib.auth.models import User
+from django.db.models import Count
 
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
-from .serializers import (
-    NewsSerializer,
-    NewsViewSerializer
-)
-from .models import (
-    News,
-    NewsView
-)
+from .models import News, NewsView, Tag
+from .serializers import NewsSerializer, NewsStatisticsSerializer
 
 
 # Create your views here.
@@ -123,3 +117,25 @@ def news_by_id(request, pk):
             return Response({
                 "message": "Invalid action, please use 'like' or 'dislike'",
             }, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(["GET"])
+def news_statistics(request):
+
+    all_news_count = News.objects.aggregate(total_count=Count("id"))
+    serializer = NewsStatisticsSerializer(all_news_count)
+
+    news_items = News.objects.annotate(views_count=Count("views"))
+    news_serializer = NewsSerializer(news_items, many=True)
+
+    tag_stats = (
+        Tag.objects.annotate(news_count=Count("news")).values("name", "news_count")
+    )
+    tag_stats_result = {tag["name"]: tag["news_count"] for tag in tag_stats}
+
+    return Response({
+        "message": "Data successfully retrieved",
+        "total_count": serializer.data,
+        "news_per_tag": tag_stats_result,
+        "news_stats": news_serializer.data
+    }, status=status.HTTP_200_OK)
