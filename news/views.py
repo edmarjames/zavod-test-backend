@@ -6,7 +6,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
 from .models import News, NewsView, Tag
-from .serializers import NewsSerializer, NewsStatisticsSerializer
+from .serializers import NewsSerializer, NewsStatisticsSerializer, TagSerializer
 
 
 # Create your views here.
@@ -139,3 +139,15 @@ def news_statistics(request):
         "news_per_tag": tag_stats_result,
         "news_stats": news_serializer.data
     }, status=status.HTTP_200_OK)
+
+
+@api_view(["GET"])
+def tags(request):
+
+    all_tags = Tag.objects.all().only("id", "name")
+    serializer = TagSerializer(all_tags, many=True)
+
+    return Response({
+        "message": "Data successfully retrieved",
+        "data": serializer.data
+    })

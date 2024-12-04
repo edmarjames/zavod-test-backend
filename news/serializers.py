@@ -32,3 +32,9 @@ class NewsViewSerializer(serializers.ModelSerializer):
     class Meta:
         model = NewsView
         fields = "__all__"
+
+class TagSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Tag
+        fields = ["id", "name"]
+
