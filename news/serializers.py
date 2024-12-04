@@ -4,18 +4,20 @@ from .models import News, NewsView, Tag
 
 
 class NewsSerializer(serializers.ModelSerializer):
-    tags = serializers.SerializerMethodField()
+    # tags = serializers.SerializerMethodField()
+    tags = serializers.PrimaryKeyRelatedField(
+        many=True,
+        queryset=Tag.objects.all()
+    )
     views_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = News
         fields = "__all__"
 
-    def get_tags(self, obj):
-        return [tag.name for tag in obj.tags.all()]
-
     def to_representation(self, instance):
         data = super().to_representation(instance)
+        data["tags"] = [tag.name for tag in instance.tags.all()]
         data["image"] = instance.image.url if instance.image else None
         return data
 
