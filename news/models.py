@@ -17,7 +17,6 @@ class News(models.Model):
     image = CloudinaryField("image")
     likes = models.IntegerField(default=0)
     dislikes = models.IntegerField(default=0)
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="created_by")
     date_created = models.DateTimeField(auto_now_add=True)
 
     class Meta:
