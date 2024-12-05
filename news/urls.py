@@ -12,6 +12,6 @@ urlpatterns += [
     path('login/', views.login_user, name="login"),
     path('news/', views.news, name="news"),
     path('news/<int:pk>', views.news_by_id, name="news_by_id"),
-    path('news/statistics', views.news_statistics, name="news_statistics"),
+    path('news/statistics/', views.news_statistics, name="news_statistics"),
     path('tags/', views.tags, name="tags"),
 ]

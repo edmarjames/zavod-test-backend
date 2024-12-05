@@ -154,9 +154,19 @@ def news_statistics(request):
     news_serializer = NewsSerializer(news_items, many=True)
 
     tag_stats = (
-        Tag.objects.annotate(news_count=Count("news")).values("name", "news_count")
+        Tag.objects.annotate(
+            news_count=Count("news", distinct=True),
+            views_count=Count("news__views", distinct=True)
+        )
+        .values("name", "news_count", "views_count")
     )
-    tag_stats_result = {tag["name"]: tag["news_count"] for tag in tag_stats}
+    tag_stats_result = {
+        tag["name"]: {
+            "news_count": tag["news_count"],
+            "views_count": tag["views_count"] or 0
+        }
+        for tag in tag_stats
+    }
 
     return Response({
         "message": "Data successfully retrieved",
