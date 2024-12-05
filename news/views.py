@@ -1,4 +1,5 @@
 from django.contrib.auth import authenticate
+from django.core.paginator import Paginator
 from django.db.models import Count
 
 from rest_framework import status
@@ -6,7 +7,8 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
 from .models import News, NewsView, Tag
-from .serializers import NewsSerializer, NewsStatisticsSerializer, TagSerializer
+from .serializers import (NewsSerializer, NewsStatisticsSerializer,
+                          TagSerializer)
 
 
 # Create your views here.
@@ -55,12 +57,35 @@ def news(request):
             }, status=status.HTTP_204_NO_CONTENT)
 
     elif request.method == "GET":
-        all_news = News.objects.all()
-        serializer = NewsSerializer(all_news, many=True)
+
+        page = request.GET.get("page", 1)
+        page_size = request.GET.get("page_size", 3)
+        tags = request.GET.getlist("tags", None)
+
+        all_news = News.objects.all().order_by("-date_created")
+        if tags:
+            tags = [int(tag) for tag in tags]
+            all_news = all_news.filter(tags__id__in=tags).distinct()
+
+        paginator = Paginator(all_news, page_size)
+
+        try:
+            news_page = paginator.page(page)
+        except Exception:
+            return Response({
+                "message": "Invalid page number.",
+                "data": []
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        serializer = NewsSerializer(news_page, many=True)
 
         return Response({
-            "data": serializer.data
+            "data": serializer.data,
+            "page": page,
+            "total_pages": paginator.num_pages,
+            "total_items": paginator.count,
         }, status=status.HTTP_200_OK)
+
 
 
 @api_view(["GET", "DELETE", "PATCH"])
