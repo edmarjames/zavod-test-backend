@@ -4,7 +4,6 @@ from .models import News, NewsView, Tag
 
 
 class NewsSerializer(serializers.ModelSerializer):
-    # tags = serializers.SerializerMethodField()
     tags = serializers.PrimaryKeyRelatedField(
         many=True,
         queryset=Tag.objects.all()

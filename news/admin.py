@@ -1,9 +1,6 @@
 from django.contrib import admin
-from .models import (
-  Tag,
-  News,
-  NewsView
-)
+
+from .models import News, NewsView, Tag
 
 admin.site.register(Tag)
 admin.site.register(News)
