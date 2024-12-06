@@ -99,9 +99,10 @@ def news_by_id(request, pk):
         }, status=status.HTTP_404_NOT_FOUND)
 
     if request.method == "GET":
+        filtered = request.query_params.get("filtered", "")
         serializer = NewsSerializer(news)
 
-        if news:
+        if news and not filtered:
             NewsView.objects.create(news=news)
 
         return Response({
