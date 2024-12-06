@@ -87,7 +87,6 @@ def news(request):
         }, status=status.HTTP_200_OK)
 
 
-
 @api_view(["GET", "DELETE", "PATCH"])
 def news_by_id(request, pk):
 
